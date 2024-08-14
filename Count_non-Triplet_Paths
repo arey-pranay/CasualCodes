@@ -1,0 +1,93 @@
+https://www.geeksforgeeks.org/count-non-path-triplets-in-a-tree/
+
+// Java code for the above approach
+
+import java.util.*;
+
+public class Main {
+	static long ans = 0;
+
+	// Function to perform Depth-First Search (DFS) on the tree
+	static void dfs(int v, int pre, List<List<Integer>> T, List<Long> sz, long n) {
+		long sum1 = 0, sum2 = 0;
+
+		// Traverse through the children of vertex 'v'
+		for (int c : T.get(v)) {
+
+			// Skip the parent vertex 'pre'
+			if (c == pre)
+				continue;
+
+			// Recursively call the 'dfs' function for the child vertex 'c'
+			dfs(c, v, T, sz, n);
+
+			// Update sum1 with the size of the subtree rooted at vertex 'c'
+			sum1 += sz.get(c);
+
+			// Update sum2 with the square of the size of the subtree rooted at vertex 'c'
+			sum2 += sz.get(c) * sz.get(c);
+
+			// Update the size of the subtree rooted at vertex 'v'
+			sz.set(v, sz.get(v) + sz.get(c));
+		}
+
+		// Update sum1 with the size of the subtree rooted at vertex 'v' excluding vertex 'v'
+		sum1 += n - sz.get(v);
+
+		// Update sum2 with the square of the size of the subtree rooted at vertex 'v' excluding vertex 'v'
+		sum2 += (n - sz.get(v)) * (n - sz.get(v));
+
+		// Update 'ans' by subtracting (sum1 * sum1 - sum2)/2. This removes the tuples (i, j, k) forming a simple path containing all three vertices i, j, and k in the tree
+		ans -= (sum1 * sum1 - sum2) / 2;
+	}
+
+	public static void main(String[] args) {
+		long n = 5;
+
+		// Adjacency list to represent the tree. Index starts from 1.
+		List<List<Integer>> T = new ArrayList<>();
+		for (int i = 0; i <= n; i++) {
+			T.add(new ArrayList<>());
+		}
+
+		// Adding edges to the tree.
+		// Edge between vertex 1 (A1) and vertex 2 (B1).
+		T.get(1).add(2);
+
+		// Reverse edge from vertex 2 to vertex 1.
+		T.get(2).add(1);
+
+		// Edge between vertex 2 (A2) and vertex 3 (B2).
+		T.get(2).add(3);
+
+		// Reverse edge from vertex 3 to vertex 2.
+		T.get(3).add(2);
+
+		// Edge between vertex 2 (A3) and vertex 4 (B3).
+		T.get(2).add(4);
+
+		// Reverse edge from vertex 4 to vertex 2.
+		T.get(4).add(2);
+
+		// Edge between vertex 1 (A4) and vertex 5 (B4)
+		T.get(1).add(5);
+
+		// Reverse edge from vertex 5 to vertex 1.
+		T.get(5).add(1);
+
+		// Calculate the initial value for 'ans'.
+		ans = n * (n - 1) * (n - 2) / 6;
+
+		// Initialize a list 'sz' to store the size of each subtree, where 'sz[i]' represents the size of the subtree rooted at vertex 'i'.
+		List<Long> sz = new ArrayList<>();
+		for (int i = 0; i <= n; i++) {
+			sz.add(1L);
+		}
+
+		// Call the 'dfs' function starting from vertex 1 (the valid root vertex) and the parent vertex as -1 (indicating there is no parent).
+		dfs(1, -1, T, sz, n);
+
+		// Output the final answer.
+		System.out.println(ans);
+	}
+}
